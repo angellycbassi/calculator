@@ -46,8 +46,16 @@ button:hover {
   text-align: right;
   margin-top: 30px;
   margin-bottom: 30px;
+  overflow: hidden;
+  white-space: nowrap;
+  direction: rtl;
 }
 
-.orange {
+.purple {
   background-color: rgb(98, 0, 255);
+}
+
+.clear {
+  width: 160px;
+  border-radius: 20px;
 }

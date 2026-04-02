@@ -1,4 +1,5 @@
 let calculation = localStorage.getItem('calculation') || '';
+let canAddDecimal = true;
 updateDisplay();
 
 document.addEventListener('keydown', (event) => {
@@ -12,11 +13,18 @@ document.addEventListener('keydown', (event) => {
   if (!isNaN(event.key) || ['+', '-', '*', '/', '.'].includes(event.key)) {
     if (!isNaN(event.key)) {
       appendValue(event.key);
-    } else {
-      if (calculation === '' || isLastCharOperator()) {
+    } else if (event.key === '.') {
+      if (calculation === '' || isLastCharOperator() || !canAddDecimal) {
         return;
       }
       appendValue(event.key);
+      canAddDecimal = false;
+    } else {
+      if (calculation === '' || isLastCharOperator() || calculation.slice(-1) === '.') {
+        return;
+      }
+      appendValue(event.key);
+      canAddDecimal = true;
     }
   }
 
@@ -32,11 +40,18 @@ document.querySelectorAll('.js-button')
       const value = button.dataset.value;
       if (!isNaN(value)) {
         appendValue(value);
-      } else {
-        if (calculation === '' || isLastCharOperator()) {
+      } else if (value === '.') {
+        if (calculation === '' || isLastCharOperator() || !canAddDecimal) {
           return;
         }
         appendValue(value);
+        canAddDecimal = false;
+      } else {
+        if (calculation === '' || isLastCharOperator() || calculation.slice(-1) === '.') {
+          return;
+        }
+        appendValue(value);
+        canAddDecimal = true;
       }
     });
   });
@@ -49,7 +64,10 @@ document.querySelector('.js-equal')
     calculateResult();
   });
 
-document.querySelector('.js-clear')
+document.querySelector('.js-clear-last-char')
+  .addEventListener('click', clearLastChar);
+
+document.querySelector('.js-clear-all')
   .addEventListener('click', clearCalculation);
 
 function appendValue(value) {
@@ -60,13 +78,18 @@ function appendValue(value) {
 
 function isLastCharOperator() {
   const lastChar = calculation.slice(-1);
-  return ['+', '-', '*', '/', '.'].includes(lastChar);
+  return ['+', '-', '*', '/'].includes(lastChar);
 }
 
 function clearCalculation() {
   calculation = '';
   updateDisplay();
   localStorage.removeItem('calculation');
+}
+
+function clearLastChar() {
+  calculation = calculation.slice(0, -1);
+  updateDisplay();
 }
 
 function calculateResult() {
