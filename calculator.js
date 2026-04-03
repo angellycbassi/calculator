@@ -12,7 +12,11 @@ document.addEventListener('keydown', (event) => {
 
   if (!isNaN(event.key) || ['+', '-', '*', '/', '.'].includes(event.key)) {
     if (!isNaN(event.key)) {
+      const wasAfterOperator = isLastCharOperator();
       appendValue(event.key);
+      if (wasAfterOperator) {
+        canAddDecimal = true;
+      }
     } else if (event.key === '.') {
       if (calculation === '' || isLastCharOperator() || !canAddDecimal) {
         return;
@@ -39,7 +43,11 @@ document.querySelectorAll('.js-button')
     button.addEventListener('click', () => {
       const value = button.dataset.value;
       if (!isNaN(value)) {
+        const wasAfterOperator = isLastCharOperator();
         appendValue(value);
+        if (wasAfterOperator) {
+          canAddDecimal = true;
+        }
       } else if (value === '.') {
         if (calculation === '' || isLastCharOperator() || !canAddDecimal) {
           return;
@@ -85,9 +93,17 @@ function clearCalculation() {
   calculation = '';
   updateDisplay();
   localStorage.removeItem('calculation');
+  canAddDecimal = true;
 }
 
 function clearLastChar() {
+  const lastChar = calculation.slice(-1);
+  if (lastChar === '.') {
+    canAddDecimal = true;
+  } else if (['+', '-', '*', '/'].includes(lastChar)) {
+    canAddDecimal = false;
+  }
+  
   calculation = calculation.slice(0, -1);
   updateDisplay();
 }
